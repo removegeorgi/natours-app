@@ -73,9 +73,18 @@ exports.createTour = async (req, res) => {
       },
     });
   } catch (err) {
-    res.status(404).json({
-      status: 'fail',
-      message: 'Invalid data sent',
+    console.error('Error:', err);
+    if (err.name === 'ValidationError') {
+      const messages = Object.values(err.errors).map((el) => el.message); // Extract error messages
+
+      return res.status(400).json({
+        status: 'fail',
+        message: messages.join('. '), // Send back the actual validation error
+      });
+    }
+    res.status(500).json({
+      status: 'error',
+      message: 'Server error',
     });
   }
 };
